@@ -27,6 +27,7 @@ import json
 import base64
 import sys
 import random
+import uuid
 
 is_alive_path = "graphite/is_alive.json"
 with open(is_alive_path, "r") as f:
@@ -143,6 +144,7 @@ class GraphV2Problem(BaseModel):
     weighted: bool = Field(False, description="Weighted Graph")  # boolean for whether the value in the edges matrix represents cost
     repeating: bool = Field(False, description="Allow Repeating Nodes")  # boolean for whether the nodes in the problem can be revisited
     checksum: Union[str, None] = Field(None, description="Checksum")
+    task_uuid: str = str(uuid.uuid1())
 
     ### Expensive check only needed for organic requests
     # @model_validator(mode='after')
@@ -180,6 +182,7 @@ class GraphV2Problem(BaseModel):
             info["Simple"] = self.simple
             info["Weighted"] = self.weighted
             info["Repeating"] = self.repeating
+            info["Task Identifier"] = self.task_uuid
         elif verbosity == 3:
             for field in self.model_fields:
                 description = self.model_fields[field].description
@@ -283,6 +286,7 @@ class GraphV1Problem(BaseModel):
     simple: bool = Field(True, description="Simple Graph")  # boolean for whether the graph contains any degenerate loop
     weighted: bool = Field(False, description="Weighted Graph")  # boolean for whether the value in the edges matrix represents cost
     repeating: bool = Field(False, description="Allow Repeating Nodes")  # boolean for whether the nodes in the problem can be revisited
+    task_uuid: str = str(uuid.uuid1())
 
     @model_validator(mode='after') # checks and generates missing data if not passed in by user
     def initialize_nodes_and_edges(self):
